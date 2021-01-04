@@ -26,7 +26,7 @@
 
 #include "boxgui_interactable.h"
 
-class vr_photo :
+class vr_re_impl :
 	public cgv::base::node,
 	public cgv::render::drawable,
 	public cgv::gui::event_handler,
@@ -159,9 +159,9 @@ public:
 	/// construct a scene with a table
 	void build_scene(float w, float d, float h, float W, float tw, float td, float th, float tW);
 public:
-	vr_photo();
+	vr_re_impl();
 
-	std::string get_type_name() { return "vr_photo"; }
+	std::string get_type_name() { return "vr_re_impl"; }
 
 	void stream_help(std::ostream& os);
 

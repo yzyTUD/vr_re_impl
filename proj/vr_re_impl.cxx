@@ -1,4 +1,4 @@
-#include "vr_photo.h"
+#include "vr_re_impl.h"
 
 #include <cgv/signal/rebind.h>
 #include <cgv/base/register.h>
@@ -16,7 +16,7 @@
 #include "intersection.h"
 
 
-void vr_photo::init_cameras(vr::vr_kit* kit_ptr)
+void vr_re_impl::init_cameras(vr::vr_kit* kit_ptr)
 {
 	vr::vr_camera* camera_ptr = kit_ptr->get_camera();
 	if (!camera_ptr)
@@ -42,7 +42,7 @@ void vr_photo::init_cameras(vr::vr_kit* kit_ptr)
 	post_recreate_gui();
 }
 
-void vr_photo::start_camera()
+void vr_re_impl::start_camera()
 {
 	if (!vr_view_ptr)
 		return;
@@ -56,7 +56,7 @@ void vr_photo::start_camera()
 		cgv::gui::message(camera_ptr->get_last_error());
 }
 
-void vr_photo::stop_camera()
+void vr_re_impl::stop_camera()
 {
 	if (!vr_view_ptr)
 		return;
@@ -71,7 +71,7 @@ void vr_photo::stop_camera()
 }
 
 /// compute intersection points of controller ray with movable boxes
-void vr_photo::compute_intersections(const vec3& origin, const vec3& direction, int ci, const rgb& color)
+void vr_re_impl::compute_intersections(const vec3& origin, const vec3& direction, int ci, const rgb& color)
 {
 	for (size_t i = 0; i < movable_boxes.size(); ++i) {
 		vec3 origin_box_i = origin - movable_box_translations[i];
@@ -101,7 +101,7 @@ void vr_photo::compute_intersections(const vec3& origin, const vec3& direction, 
 }
 
 /// keep track of status changes
-void vr_photo::on_status_change(void* kit_handle, int ci, vr::VRStatus old_status, vr::VRStatus new_status)
+void vr_re_impl::on_status_change(void* kit_handle, int ci, vr::VRStatus old_status, vr::VRStatus new_status)
 {
 	// ignore all but left controller changes
 	if (ci != 0)
@@ -122,7 +122,7 @@ void vr_photo::on_status_change(void* kit_handle, int ci, vr::VRStatus old_statu
 }
 
 /// register on device change events
-void vr_photo::on_device_change(void* kit_handle, bool attach)
+void vr_re_impl::on_device_change(void* kit_handle, bool attach)
 {
 	if (attach) {
 		if (last_kit_handle == 0) {
@@ -147,7 +147,7 @@ void vr_photo::on_device_change(void* kit_handle, bool attach)
 }
 
 /// construct boxes that represent a table of dimensions tw,td,th and leg width tW
-void vr_photo::construct_table(float tw, float td, float th, float tW) {
+void vr_re_impl::construct_table(float tw, float td, float th, float tW) {
 	// construct table
 	rgb table_clr(0.3f, 0.2f, 0.0f);
 	boxes.push_back(box3(
@@ -166,7 +166,7 @@ void vr_photo::construct_table(float tw, float td, float th, float tW) {
 }
 
 /// construct boxes that represent a room of dimensions w,d,h and wall width W
-void vr_photo::construct_room(float w, float d, float h, float W, bool walls, bool ceiling) {
+void vr_re_impl::construct_room(float w, float d, float h, float W, bool walls, bool ceiling) {
 	// construct floor
 	boxes.push_back(box3(vec3(-0.5f*w, -W, -0.5f*d), vec3(0.5f*w, 0, 0.5f*d)));
 	box_colors.push_back(rgb(0.2f, 0.2f, 0.2f));
@@ -189,7 +189,7 @@ void vr_photo::construct_room(float w, float d, float h, float W, bool walls, bo
 }
 
 /// construct boxes for environment
-void vr_photo::construct_environment(float s, float ew, float ed, float w, float d, float h) {
+void vr_re_impl::construct_environment(float s, float ew, float ed, float w, float d, float h) {
 	std::default_random_engine generator;
 	std::uniform_real_distribution<float> distribution(0, 1);
 	unsigned n = unsigned(ew / s);
@@ -215,7 +215,7 @@ void vr_photo::construct_environment(float s, float ew, float ed, float w, float
 }
 
 /// construct boxes that can be moved around
-void vr_photo::construct_movable_boxes(float tw, float td, float th, float tW, size_t nr) {
+void vr_re_impl::construct_movable_boxes(float tw, float td, float th, float tW, size_t nr) {
 	/*
 	vec3 extent(0.75f, 0.5f, 0.05f);
 	movable_boxes.push_back(box3(-0.5f * extent, 0.5f * extent));
@@ -244,7 +244,7 @@ void vr_photo::construct_movable_boxes(float tw, float td, float th, float tW, s
 }
 
 /// construct a scene with a table
-void vr_photo::build_scene(float w, float d, float h, float W, float tw, float td, float th, float tW)
+void vr_re_impl::build_scene(float w, float d, float h, float W, float tw, float td, float th, float tW)
 {
 	construct_room(w, d, h, W, false, false);
 	construct_table(tw, td, th, tW);
@@ -253,7 +253,7 @@ void vr_photo::build_scene(float w, float d, float h, float W, float tw, float t
 	construct_movable_boxes(tw, td, th, tW, 50);
 }
 
-vr_photo::vr_photo() 
+vr_re_impl::vr_re_impl() 
 {
 	frame_split = 0;
 	extent_texcrd = vec2(0.5f, 0.5f);
@@ -271,13 +271,13 @@ vr_photo::vr_photo()
 	camera_aspect = 1;
 	use_matrix = true;
 	show_seethrough = false;
-	set_name("vr_photo");
+	set_name("vr_re_impl");
 	build_scene(5, 7, 3, 0.2f, 0.8f, 0.8f, 0.72f, 0.03f);
 	vr_view_ptr = 0;
 	ray_length = 2;
 	last_kit_handle = 0;
-	connect(cgv::gui::ref_vr_server().on_device_change, this, &vr_photo::on_device_change);
-	connect(cgv::gui::ref_vr_server().on_status_change, this, &vr_photo::on_status_change);
+	connect(cgv::gui::ref_vr_server().on_device_change, this, &vr_re_impl::on_device_change);
+	connect(cgv::gui::ref_vr_server().on_status_change, this, &vr_re_impl::on_status_change);
 
 	mesh_scale = 0.0005f;
 	mesh_location = dvec3(0, 0.85f, 0);
@@ -310,11 +310,11 @@ vr_photo::vr_photo()
 	state[0] = state[1] = state[2] = state[3] = IS_NONE;
 }
 	
-void vr_photo::stream_help(std::ostream& os) {
-	os << "vr_photo: no shortcuts defined" << std::endl;
+void vr_re_impl::stream_help(std::ostream& os) {
+	os << "vr_re_impl: no shortcuts defined" << std::endl;
 }
 	
-void vr_photo::on_set(void* member_ptr)
+void vr_re_impl::on_set(void* member_ptr)
 {
 	if (member_ptr == &label_face_type || member_ptr == &label_font_idx) {
 		label_font_face = cgv::media::font::find_font(font_names[label_font_idx])->get_font_face(label_face_type);
@@ -335,7 +335,7 @@ void vr_photo::on_set(void* member_ptr)
 	post_redraw();
 }
 	
-bool vr_photo::handle(cgv::gui::event& e)
+bool vr_re_impl::handle(cgv::gui::event& e)
 {
 	b_interactable->handle(e);
 
@@ -466,7 +466,7 @@ bool vr_photo::handle(cgv::gui::event& e)
 	return false;
 }
 
-bool vr_photo::init(cgv::render::context& ctx)
+bool vr_re_impl::init(cgv::render::context& ctx)
 {
 	if (!cgv::utils::has_option("NO_OPENVR"))
 		ctx.set_gamma(1.0f);
@@ -519,14 +519,14 @@ bool vr_photo::init(cgv::render::context& ctx)
 	return true;
 }
 
-void vr_photo::clear(cgv::render::context& ctx)
+void vr_re_impl::clear(cgv::render::context& ctx)
 {
 	cgv::render::ref_box_renderer(ctx, -1);
 	cgv::render::ref_sphere_renderer(ctx, -1);
 	cgv::render::ref_rounded_cone_renderer(ctx, -1);
 }
 
-void vr_photo::init_frame(cgv::render::context& ctx)
+void vr_re_impl::init_frame(cgv::render::context& ctx)
 {
 	b_interactable->init_frame(ctx);
 
@@ -648,7 +648,7 @@ void vr_photo::init_frame(cgv::render::context& ctx)
 	}
 }
 
-void vr_photo::draw(cgv::render::context& ctx)
+void vr_re_impl::draw(cgv::render::context& ctx)
 {
 	b_interactable->draw(ctx);
 
@@ -852,7 +852,7 @@ void vr_photo::draw(cgv::render::context& ctx)
 	}
 }
 
-void vr_photo::finish_draw(cgv::render::context& ctx)
+void vr_re_impl::finish_draw(cgv::render::context& ctx)
 {
 	return;
 	if ((!shared_texture && camera_tex.is_created()) || (shared_texture && camera_tex_id != -1)) {
@@ -887,8 +887,8 @@ void vr_photo::finish_draw(cgv::render::context& ctx)
 	}
 }
 
-void vr_photo::create_gui() {
-	add_decorator("vr_photo", "heading", "level=2");
+void vr_re_impl::create_gui() {
+	add_decorator("vr_re_impl", "heading", "level=2");
 	add_member_control(this, "mesh_scale", mesh_scale, "value_slider", "min=0.1;max=10;log=true;ticks=true");
 	add_gui("mesh_location", mesh_location, "vector", "options='min=-3;max=3;ticks=true");
 	add_gui("mesh_orientation", static_cast<dvec4&>(mesh_orientation), "direction", "options='min=-1;max=1;ticks=true");
@@ -898,4 +898,4 @@ void vr_photo::create_gui() {
 
 #include <cgv/base/register.h>
 
-cgv::base::object_registration<vr_photo> vr_photo_reg("vr_photo");
+cgv::base::object_registration<vr_re_impl> vr_re_impl_reg("vr_re_impl");
