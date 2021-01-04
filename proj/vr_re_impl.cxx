@@ -11,6 +11,8 @@
 #include <cgv/media/mesh/simple_mesh.h>
 #include <cg_vr/vr_events.h>
 
+#include <cgv/gui/file_dialog.h>
+
 #include <random>
 
 #include "intersection.h"
@@ -246,11 +248,11 @@ void vr_re_impl::construct_movable_boxes(float tw, float td, float th, float tW,
 /// construct a scene with a table
 void vr_re_impl::build_scene(float w, float d, float h, float W, float tw, float td, float th, float tW)
 {
-	construct_room(w, d, h, W, false, false);
-	construct_table(tw, td, th, tW);
-	construct_environment(0.3f, 3 * w, 3 * d, w, d, h);
+	//construct_room(w, d, h, W, false, false);
+	//construct_table(tw, td, th, tW);
+	//construct_environment(0.3f, 3 * w, 3 * d, w, d, h);
 	//construct_environment(0.4f, 0.5f, 1u, w, d, h);
-	construct_movable_boxes(tw, td, th, tW, 50);
+	//construct_movable_boxes(tw, td, th, tW, 50);
 }
 
 vr_re_impl::vr_re_impl() 
@@ -308,6 +310,8 @@ vr_re_impl::vr_re_impl()
 	}
 	font_enum_decl += "'";
 	state[0] = state[1] = state[2] = state[3] = IS_NONE;
+
+	//cgv::gui::file_open_dialog("Open", "OBJ Files (*.obj):*.obj");
 }
 	
 void vr_re_impl::stream_help(std::ostream& os) {
@@ -651,6 +655,9 @@ void vr_re_impl::init_frame(cgv::render::context& ctx)
 void vr_re_impl::draw(cgv::render::context& ctx)
 {
 	b_interactable->draw(ctx);
+
+	r_test->draw(ctx);
+	r_test->render_random_boxes(ctx);
 
 	if (MI.is_constructed()) {
 		dmat4 R;

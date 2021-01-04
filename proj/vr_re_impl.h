@@ -25,6 +25,7 @@
 #include <vr_render_helpers.h>
 
 #include "boxgui_interactable.h"
+#include "render_test.h"
 
 class vr_re_impl :
 	public cgv::base::node,
@@ -134,6 +135,7 @@ protected:
 	vec2 center_right;
 
 	boxgui_interactable* b_interactable = new boxgui_interactable();
+	render_test* r_test = new render_test();
 
 public:
 	void init_cameras(vr::vr_kit* kit_ptr);
