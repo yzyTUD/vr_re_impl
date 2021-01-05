@@ -206,12 +206,13 @@ void vr_re_impl::construct_environment(float s, float ew, float ed, float w, flo
 				continue;
 			float h = 0.2f*(std::max(abs(x) - 0.5f*w, 0.0f) + std::max(abs(z) - 0.5f*d, 0.0f))*distribution(generator) + 0.1f;
 			boxes.push_back(box3(vec3(x, 0.0f, z), vec3(x + s, h, z + s)));
-			rgb color = cgv::media::color<float, cgv::media::HLS>(distribution(generator), 0.1f*distribution(generator) + 0.15f, 0.3f);
-			box_colors.push_back(color);
-			/*box_colors.push_back(
-				rgb(0.3f*distribution(generator) + 0.3f,
-					0.3f*distribution(generator) + 0.2f,
-					0.2f*distribution(generator) + 0.1f));*/
+			box_colors.push_back(
+				rgb(
+					0.4f * distribution(generator) + 0.1f,
+					0.4f * distribution(generator) + 0.3f,
+					0.4f * distribution(generator) + 0.1f
+				)
+			);
 		}
 	}
 }
@@ -248,9 +249,9 @@ void vr_re_impl::construct_movable_boxes(float tw, float td, float th, float tW,
 /// construct a scene with a table
 void vr_re_impl::build_scene(float w, float d, float h, float W, float tw, float td, float th, float tW)
 {
-	//construct_room(w, d, h, W, false, false);
-	//construct_table(tw, td, th, tW);
-	//construct_environment(0.3f, 3 * w, 3 * d, w, d, h);
+	construct_room(w, d, h, W, false, false);
+	construct_table(tw, td, th, tW);
+	construct_environment(0.3f, 3 * w, 3 * d, w, d, h);
 	//construct_environment(0.4f, 0.5f, 1u, w, d, h);
 	//construct_movable_boxes(tw, td, th, tW, 50);
 }
@@ -654,10 +655,10 @@ void vr_re_impl::init_frame(cgv::render::context& ctx)
 
 void vr_re_impl::draw(cgv::render::context& ctx)
 {
-	b_interactable->draw(ctx);
+	//b_interactable->draw(ctx);
 
-	r_test->draw(ctx);
-	r_test->render_random_boxes(ctx);
+	//r_test->render_random_boxes(ctx);
+	r_test->render_random_spheres(ctx);
 
 	if (MI.is_constructed()) {
 		dmat4 R;

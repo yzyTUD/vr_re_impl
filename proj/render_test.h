@@ -23,9 +23,14 @@ class render_test :
 	public drawable // registers for drawing with opengl
 {
 private:
-	cgv::render::box_render_style box_style;
-	cgv::render::box_render_style sphere_style;
+	// some of the vars are shared 
+	cgv::render::box_render_style brs;
+	cgv::render::sphere_render_style srs;
+
 	std::vector<box3> random_boxes;
+	std::vector<vec3> random_spheres;
+
+	std::vector<float> random_float_numbers;
 	std::vector<rgb> random_colors;
 	std::vector<vec3> random_translations;
 	std::vector<quat> random_rotations;
@@ -35,6 +40,7 @@ public:
 	render_test()
 	{
 		random_position_orientation_generator();
+		srs.radius = 0.05f;
 	}
 	/// 
 	void on_set(void* member_ptr)
@@ -83,6 +89,7 @@ public:
 		std::default_random_engine generator;
 		std::uniform_real_distribution<float> distribution(0, 1);
 		std::uniform_real_distribution<float> signed_distribution(-1, 1);
+
 		for (size_t i = 0; i < nr; ++i) {
 			float x = distribution(generator);
 			float y = distribution(generator);
@@ -92,34 +99,39 @@ public:
 
 			vec3 center(-0.5f * tw + x * tw, th + tW, -0.5f * td + y * td);
 			random_boxes.push_back(box3(-0.5f * extent, 0.5f * extent));
-			movable_box_colors.push_back(rgb(distribution(generator), distribution(generator), distribution(generator)));
-			movable_box_translations.push_back(center);
+			random_colors.push_back(rgb(distribution(generator), distribution(generator), distribution(generator)));
+			random_translations.push_back(center);
 			quat rot(signed_distribution(generator), signed_distribution(generator), signed_distribution(generator), signed_distribution(generator));
 			rot.normalize();
-			movable_box_rotations.push_back(rot);
+			random_rotations.push_back(rot);
+
+			float radius = distribution(generator) * 0.025f + 0.025f;
+			random_float_numbers.push_back(radius);
+
 		}
 	}
 	void render_random_boxes(context& ctx) {
-		if (movable_boxes.size()) {
+		if (random_boxes.size()) {
 			cgv::render::box_renderer& renderer = cgv::render::ref_box_renderer(ctx);
-			renderer.set_render_style(movable_style);
+			renderer.set_render_style(brs);
 			renderer.set_box_array(ctx, random_boxes);
-			renderer.set_color_array(ctx, movable_box_colors);
-			renderer.set_translation_array(ctx, movable_box_translations);
-			renderer.set_rotation_array(ctx, movable_box_rotations);
-			renderer.render(ctx, 0, movable_boxes.size());
+			renderer.set_color_array(ctx, random_colors);
+			renderer.set_translation_array(ctx, random_translations);
+			renderer.set_rotation_array(ctx, random_rotations);
+			renderer.render(ctx, 0, random_boxes.size());
 		}
 	}
 	void render_random_spheres(context& ctx) {
-		if (movable_boxes.size()) {
-			cgv::render::box_renderer& renderer = cgv::render::ref_box_renderer(ctx);
-			renderer.set_render_style(movable_style);
-			renderer.set_box_array(ctx, movable_boxes);
-			renderer.set_color_array(ctx, movable_box_colors);
-			renderer.set_translation_array(ctx, movable_box_translations);
-			renderer.set_rotation_array(ctx, movable_box_rotations);
-			renderer.render(ctx, 0, movable_boxes.size());
+		if (random_translations.size()) {
+			auto& sr = cgv::render::ref_sphere_renderer(ctx);
+			sr.set_position_array(ctx, random_translations);
+			sr.set_radius_array(ctx, random_float_numbers);
+			sr.set_color_array(ctx, random_colors);
+			sr.set_render_style(srs);
+			sr.render(ctx, 0, random_translations.size());
 		}
+		//ctx.get_light_source()
+		//ctx.perform_screen_shot();
 	}
 	/// overload the create gui method
 	void create_gui()

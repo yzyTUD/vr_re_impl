@@ -6,7 +6,7 @@ projectGUID="84DF274E-AE6D-420B-9B7D-B5711773DCAF";
 addProjectDirs=[CGV_DIR."/plugins", CGV_DIR."/libs", CGV_DIR."/test"];
 addProjectDeps=["cgv_utils", "cgv_type", "cgv_data", "cgv_base", "cgv_math",
 				"cgv_media", "cgv_gui", "cgv_render", "cmi_io",
-				"cgv_viewer", "cg_fltk", "crg_grid", "cg_ext", "cgv_gl", 
+				"cgv_viewer", "cg_fltk", "crg_grid","crg_light", "cg_ext", "cgv_gl", 
 				"crg_vr_view", 
 				"crg_vr_wall",
 				"cg_vr", "vr_emulator"];
